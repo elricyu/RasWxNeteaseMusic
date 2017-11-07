@@ -159,6 +159,7 @@ def geturl(song):
     enc_id = encrypted_id(song_id)
     url = 'http://m%s.music.126.net/%s/%s.mp3' % (2,
                                                   enc_id, song_id)
+    log.debug(url)
     return url, quality, play_time
 
 
@@ -167,6 +168,7 @@ def geturl_new_api(song):
     alter = NetEase().songs_detail_new_api([song['id']])[0]
     url = alter['url']
     quality = br_to_quality.get(alter['br'], '')
+    log.debug(url)
     return url, quality
 
 
@@ -266,6 +268,7 @@ class NetEase(object):
             'password': password,
             'rememberLogin': 'true'
         }
+        log.debug(username)
         data = encrypted_request(text)
         try:
             return self.httpRequest('Login_POST', action, data)
@@ -281,6 +284,7 @@ class NetEase(object):
             'password': password,
             'rememberLogin': 'true'
         }
+        log.debug(username)
         data = encrypted_request(text)
         try:
             return self.httpRequest('Login_POST', action, data)

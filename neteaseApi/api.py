@@ -15,6 +15,7 @@ from builtins import map
 from builtins import open
 from builtins import range
 from builtins import str
+from builtins import pow
 from future import standard_library
 standard_library.install_aliases()
 
@@ -26,14 +27,6 @@ import hashlib
 import random
 import base64
 import binascii
-import sys
-import crypto
-
-try:
-    from Crypto.Cipher import AES
-except:
-    sys.modules['Crypto'] = crypto
-    from Crypto.Cipher import AES
 
 from Crypto.Cipher import AES
 from http.cookiejar import LWPCookieJar
@@ -102,7 +95,6 @@ def encrypted_id(id):
 # 登录加密算法, 基于https://github.com/stkevintan/nw_musicbox脚本实现
 def encrypted_request(text):
     text = json.dumps(text)
-    log.debug(text)
     secKey = createSecretKey(16)
     encText = aesEncrypt(aesEncrypt(text, nonce), secKey)
     encSecKey = rsaEncrypt(secKey, pubKey, modulus)
@@ -121,7 +113,7 @@ def aesEncrypt(text, secKey):
 
 def rsaEncrypt(text, pubKey, modulus):
     text = text[::-1]
-    rs = pow(int(binascii.hexlify(text), 16), int(pubKey, 16)) % int(modulus, 16)
+    rs = pow(int(binascii.hexlify(text), 16), int(pubKey, 16), int(modulus, 16))
     return format(rs, 'x').zfill(256)
 
 
@@ -142,25 +134,21 @@ def geturl(song):
     if song['hMusic'] and quality <= 0:
         music = song['hMusic']
         quality = 'HD'
-        play_time = str(music['playTime'])
     elif song['mMusic'] and quality <= 1:
         music = song['mMusic']
         quality = 'MD'
-        play_time = str(music['playTime'])
     elif song['lMusic'] and quality <= 2:
         music = song['lMusic']
         quality = 'LD'
-        play_time = str(music['playTime'])
     else:
-        play_time = 0
-        return song['mp3Url'], '', play_time
+        return song['mp3Url'], ''
+
     quality = quality + ' {0}k'.format(music['bitrate'] // 1000)
     song_id = str(music['dfsId'])
     enc_id = encrypted_id(song_id)
-    url = 'http://m%s.music.126.net/%s/%s.mp3' % (2,
+    url = 'http://m%s.music.126.net/%s/%s.mp3' % (random.randrange(1, 3),
                                                   enc_id, song_id)
-    log.debug(url)
-    return url, quality, play_time
+    return url, quality
 
 
 def geturl_new_api(song):
@@ -168,7 +156,6 @@ def geturl_new_api(song):
     alter = NetEase().songs_detail_new_api([song['id']])[0]
     url = alter['url']
     quality = br_to_quality.get(alter['br'], '')
-    log.debug(url)
     return url, quality
 
 
@@ -252,7 +239,7 @@ class NetEase(object):
                                            data=query,
                                            headers=self.header,
                                            timeout=default_timeout)
-            #self.session.cookies.save()
+            self.session.cookies.save()
 
         connection.encoding = 'UTF-8'
         return connection.text
@@ -263,12 +250,12 @@ class NetEase(object):
         if pattern.match(username):
             return self.phone_login(username, password)
         action = 'https://music.163.com/weapi/login?csrf_token='
+        self.session.cookies.load()
         text = {
             'username': username,
             'password': password,
             'rememberLogin': 'true'
         }
-        log.debug(username)
         data = encrypted_request(text)
         try:
             return self.httpRequest('Login_POST', action, data)
@@ -284,7 +271,6 @@ class NetEase(object):
             'password': password,
             'rememberLogin': 'true'
         }
-        log.debug(username)
         data = encrypted_request(text)
         try:
             return self.httpRequest('Login_POST', action, data)
@@ -632,7 +618,8 @@ class NetEase(object):
         temp = []
         if dig_type == 'songs' or dig_type == 'fmsongs':
             for i in range(0, len(data)):
-                url, quality, play_time = geturl(data[i])
+                url, quality = geturl(data[i])
+
                 if data[i]['album'] is not None:
                     album_name = data[i]['album']['name']
                     album_id = data[i]['album']['id']
@@ -647,8 +634,7 @@ class NetEase(object):
                     'album_name': album_name,
                     'album_id': album_id,
                     'mp3_url': url,
-                    'quality': quality,
-                    'playTime': play_time
+                    'quality': quality
                 }
                 if 'artist' in data[i]:
                     song_info['artist'] = data[i]['artist']

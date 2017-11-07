@@ -3,7 +3,7 @@ import logging
 class LogSystem(object):
     handlerList = []
     showOnCmd = True
-    loggingLevel = logging.INFO
+    loggingLevel = logging.DEBUG
     loggingFile = None
     def __init__(self):
         self.logger = logging.getLogger('itchat')
@@ -13,7 +13,7 @@ class LogSystem(object):
         self.fileHandler = None
         self.logger.addHandler(self.cmdHandler)
     def set_logging(self, showOnCmd=True, loggingFile=None,
-            loggingLevel=logging.INFO):
+            loggingLevel=logging.DEBUG):
         if showOnCmd != self.showOnCmd:
             if showOnCmd:
                 self.logger.addHandler(self.cmdHandler)

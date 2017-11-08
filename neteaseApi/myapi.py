@@ -48,7 +48,7 @@ class MyNetease:
             #登陆成功保存userId，作为获取用户歌单的依据，userId是唯一的，只要登陆成功，就会保存在userInfo文件中，所以不必每次都登陆
             userId = login_info.get('profile').get('userId')
             self.userId = userId
-            file = open("./userInfo", 'w')
+            file = open("./userInfo1", 'w')
             file.write(str(userId))
             file.close()
         else:

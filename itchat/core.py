@@ -229,7 +229,7 @@ class Core(object):
                     - for adding status should be 2
                     - for accepting status should be 3
                 - ticket: greeting message
-                - userInfo: friend's other info for adding into local storage
+                - userInfo1: friend's other info for adding into local storage
             it is defined in components/contact.py
         '''
         raise NotImplementedError()

@@ -7,7 +7,7 @@ from neteaseApi import api
 class MyNetease:
     def __init__(self):
         self.netease = api.NetEase()
-        self.userId = int(open("./userInfo", 'r').read())
+        self.userId = int(open("./userInfo1", 'r').read())
 
     def get_recommend_playlist(self): # 每日推荐歌单
         music_list = self.netease.recommend_playlist()

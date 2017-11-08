@@ -1,7 +1,7 @@
 from myapi import MyNetease
 
 netease = MyNetease()
-print netease.login("zhouyaphone@163.com", "a123456")
+print netease.login("13336045005", "")
 #coding=utf-8
 import sys
 from subprocess import PIPE, Popen

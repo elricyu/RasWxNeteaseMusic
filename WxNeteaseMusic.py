@@ -5,6 +5,11 @@ import time
 import subprocess
 from myapi import MyNetease
 import os
+
+#mpg123用于开发时MAC端运行
+#Mp3_Player = 'mpg123'
+Mp3_Player = 'omxplayer'
+
 class WxNeteaseMusic:
     def __init__(self):
         self.help_msg = \
@@ -181,16 +186,16 @@ class WxNeteaseMusic:
                     self.playlist.append(song)
                     mp3_url = song["mp3_url"]
                     try:
-                        subprocess.Popen("pkill omxplayer", shell=True)
+                        subprocess.Popen("pkill "+Mp3_Player, shell=True)
                         time.sleep(1)
-                        subprocess.Popen("omxplayer " + mp3_url, shell=True, stdout=subprocess.PIPE)
+                        subprocess.Popen(Mp3_Player + " " + mp3_url, shell=True, stdout=subprocess.PIPE)
                         self.con.notifyAll()
                         self.con.wait(int(song.get('playTime')) / 1000)
                     except:
                         pass
                 else:
                     try:
-                        subprocess.Popen("pkill omxplayer", shell=True)
+                        subprocess.Popen("pkill " + Mp3_Player, shell=True)
                         self.con.notifyAll()
                         self.con.wait()
                     except:
